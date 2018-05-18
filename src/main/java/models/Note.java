@@ -5,6 +5,8 @@
  */
 package models;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 /**
  *
  * @author SPN
@@ -12,45 +14,44 @@ package models;
 public class Note {
 
     // I commented out the body and tag, trying to mimic the Notebook class
-    
-    String title;
-//    String body;
-//    String tag;
-    long createdTime;
+    private static AtomicInteger count = new AtomicInteger(0);
+//    public int notebookId;
+    public int id = -1;
+    public String title;
+    public String body;
+    public String[] tags;
+    public long createdTime;
     long lastUpdated;
 
-    // I removed all the params here, as it seems like the are not needed.
-    // Notebook title was being set without params, so I assume the same can happen here
     public Note() {
-        // all fields are populated via curl POST
+        // all fields are populated via curl POST except ...
+        this.id = count.incrementAndGet();
         this.createdTime = System.currentTimeMillis();
     }
 
-//    public Note getNoteByTitle(String title) {
-//        if (title.equals(this.title)) {
-//            return this;
-//        }
-//        return null;
-//    }
+    public String getTitle() {
+        return title;
+    }
 
-//    public Note getNoteByTag(String tag) {
-//        if (tag.equals(this.tag)) {
-//            return this;
-//        }
-//        return null;
-////        for (int i = 0; i < this.tags.length; i++) {
-////            if (tag.equals(this.tags[i])) {
-////                return this;
-////            }
-////        }
-////        return null;
-//    }
+    public String getBody() {
+        return body;
+    }
 
-//    public void outputNote() {
-//        System.out.println(this.title);
-//        System.out.println(this.tag);
-//        System.out.println(this.body);
-//        System.out.println(this.createdTime);
-//    }
+    public String[] getTags() {
+        return tags;
+    }
+
+    public long getCreatedTime() {
+        return createdTime;
+    }
+
+    public long getLastUpdated() {
+        return lastUpdated;
+    }
+    
+    public void updateBody(String newBody) {
+        body = newBody;
+        lastUpdated = System.currentTimeMillis();
+    }
 
 }
