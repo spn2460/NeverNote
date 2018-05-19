@@ -1,21 +1,15 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package models;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  *
- * @author SPN
+ * @author nug
  */
 public class Note {
 
-    // I commented out the body and tag, trying to mimic the Notebook class
     private static AtomicInteger count = new AtomicInteger(0);
-//    public int notebookId;
     public int id = -1;
     public String title;
     public String body;

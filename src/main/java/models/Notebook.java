@@ -1,17 +1,13 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package models;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import Utilities.SerialUtility;
 
 /**
  *
- * @author SPN
+ * @author nug
  */
 public class Notebook {
 
@@ -46,6 +42,7 @@ public class Notebook {
         for (Note item : notes) {
             if (item == note) {
                 notes.remove(item);
+                item = null;
                 break;
             }
         }
@@ -54,9 +51,9 @@ public class Notebook {
     public ArrayList<Note> getNotes() {
         return notes;
     }
-    
+
     public Note getNote(int id) {
-        for (Note note: notes) {
+        for (Note note : notes) {
             if (note.id == id) {
                 return note;
             }
@@ -64,24 +61,26 @@ public class Notebook {
         return null;
     }
 
-    public void deleteNotebook() {
-//        this = null;
-    }
-
     public Notebook getFilteredNotes(String[] tags) {
-        Notebook copy = this;
+        // cloning the object so the original is unchanged
+        Notebook copy = (Notebook) SerialUtility.cloneObject(this);
+        // setting an id so it doesn't override and conflict with current getNotebookById method
+        copy.id = -1;
         copy.notes.clear();
+        
+        // creating copy to avoid concurrent modification error
+        ArrayList<Note> copylist = this.getNotes();
+
         // im pretty sure there is a better way to do this (with a map maybe)
-        for (Note note: this.getNotes()) {
-            for (String tag: note.getTags()) {
-                for (String search: tags) {
-                    if (tag.equals(search)) {
+        for (Note note : copylist) {
+            for (String noteTag : note.getTags()) {
+                for (String matchTag : tags) {
+                    if (noteTag.equals(matchTag)) {
                         copy.addNote(note);
                     }
                 }
             }
         }
-        
         return copy;
     }
 

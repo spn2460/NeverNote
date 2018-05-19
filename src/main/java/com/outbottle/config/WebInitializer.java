@@ -1,8 +1,4 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package com.outbottle.config;
 
 import javax.servlet.ServletContext;
@@ -15,7 +11,9 @@ import org.springframework.web.servlet.DispatcherServlet;
 
 /**
  *
- * @author SPN
+ * @author nug 
+ * This was borrowed from a post that discussed the best way to create a
+ * project using Maven, and Spring
  */
 public class WebInitializer implements WebApplicationInitializer {
 
