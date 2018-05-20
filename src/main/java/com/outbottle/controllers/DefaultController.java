@@ -154,7 +154,7 @@ public class DefaultController {
 //    }
 
     /**
-     * curl - "127.0.0.1:8080/NeverNote/notes/filter?id=1&tags=foo,bar"
+     * curl - "<http..>/NeverNote/notes/filter?id=1&tags=foo,bar"
      * browser - remove quotes
      * @param id the book id
      * @param tags array of tags
