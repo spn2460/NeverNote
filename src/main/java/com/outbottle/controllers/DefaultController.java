@@ -83,6 +83,20 @@ public class DefaultController {
             return "Notebook " + id + " Deleted";
         }
     }
+    
+    
+    /*
+    @Test
+    public void testGetResponseMsgForDeleteNotebook_idExists() {
+        Notebook notebook = new Notebook();
+        int id = notebooks.add(notebook);
+        
+        String actualMessage = getResponseMsgForDeleteNotebook(new String(id));
+        
+        String expectedMessage = "Notebook "+id+" does not exist";
+        assertEquals(expectedMessage, actualMessage);
+    }
+    */
 
     /**
      * create note
