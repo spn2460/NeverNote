@@ -1,4 +1,3 @@
-
 package com.outbottle.controllers;
 
 import java.util.HashMap;
@@ -13,6 +12,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 
 /**
  *
@@ -33,6 +33,7 @@ public class DefaultController {
 
     /**
      * create notebook
+     *
      * @param notebook the notebook being created from JSON request
      * @return the JSON representation of the notebook
      */
@@ -44,6 +45,7 @@ public class DefaultController {
 
     /**
      * get notebook by id
+     *
      * @param id The notebook id
      * @return the Notebook
      */
@@ -59,15 +61,17 @@ public class DefaultController {
 
     /**
      * delete notebook
+     *
      * @param id the notebook id you want to delete
      * @param map the message map for displaying a message to the user
      * @return the page where the message will show
      */
     @RequestMapping(value = "/notebooks/delete/{id}", method = RequestMethod.GET)
     public String deleteNotebook(@PathVariable(value = "id") String id, ModelMap map) {
+        // consider try catch to avoid NPE ??
         notebook = notebooks.remove(Integer.valueOf(id));
         if (notebook == null) {
-            map.put("msg", "Notebook " + id + " does note exist");
+            map.put("msg", "Notebook " + id + " does not exist");
         } else {
             notebook = null;
             map.put("msg", "Notebook " + id + " Deleted");
@@ -77,6 +81,7 @@ public class DefaultController {
 
     /**
      * create note
+     *
      * @param id the notebook id where the note will be stored
      * @param note the JSON from the request as a Note
      * @return The Note that was created
@@ -94,6 +99,7 @@ public class DefaultController {
 
     /**
      * get note
+     *
      * @param bookid the id of the notebook that contains the note
      * @param noteid the id of the note
      * @return The Note that was retrieved
@@ -113,6 +119,7 @@ public class DefaultController {
 
     /**
      * update note body
+     *
      * @param bookId the id of the notebook that contains the note
      * @param noteId the id of the note to update
      * @param note a JSON request of only the body string
@@ -130,24 +137,41 @@ public class DefaultController {
         return new ResponseEntity<>(note, HttpStatus.OK);
     }
 
+//    /**
+//     * get notes by tag
+//     * @param bookId the id of the notebook that contains the notes
+//     * @param note a JSON request with an array of tags to search on
+//     * @return a filtered notebook
+//     */
+//    @RequestMapping(value = "notes/filter/{id}", method = RequestMethod.POST)
+//    public ResponseEntity<Notebook> getNotesByTag(
+//            @PathVariable(value = "id") String bookId,
+//            @RequestBody Note note) {
+//        String[] tags = note.tags;
+//        notebook = notebooks.get(Integer.valueOf(bookId));
+//        Notebook filteredBook = notebook.getFilteredNotes(tags);
+//        return new ResponseEntity<>(filteredBook, HttpStatus.OK);
+//    }
+
     /**
-     * get notes by tag
-     * @param bookId the id of the notebook that contains the notes
-     * @param note a JSON request with an array of tags to search on
-     * @return a filtered notebook
+     * curl - "127.0.0.1:8080/NeverNote/notes/filter?id=1&tags=foo,bar"
+     * browser - remove quotes
+     * @param id the book id
+     * @param tags array of tags
+     * @return filtered list of notes
      */
-    @RequestMapping(value = "notes/filter/{id}", method = RequestMethod.POST)
+    @RequestMapping(value = "notes/filter", method = RequestMethod.GET)
     public ResponseEntity<Notebook> getNotesByTag(
-            @PathVariable(value = "id") String bookId,
-            @RequestBody Note note) {
-        String[] tags = note.tags;
-        notebook = notebooks.get(Integer.valueOf(bookId));
+            @RequestParam(value = "id", required = true) String id,
+            @RequestParam(value = "tags", required = true) String[] tags) {
+        notebook = notebooks.get(Integer.valueOf(id));
         Notebook filteredBook = notebook.getFilteredNotes(tags);
         return new ResponseEntity<>(filteredBook, HttpStatus.OK);
     }
 
     /**
      * delete note
+     *
      * @param bookId the id of the notebook that contains the note
      * @param noteId the id of the note to delete
      * @param map a map to hold responses

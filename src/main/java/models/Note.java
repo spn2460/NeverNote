@@ -9,7 +9,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class Note {
 
-    private static AtomicInteger count = new AtomicInteger(0);
+    private static final AtomicInteger NOTECOUNT = new AtomicInteger(0);
     public int id = -1;
     public String title;
     public String body;
@@ -19,7 +19,7 @@ public class Note {
 
     public Note() {
         // all fields are populated via curl POST except ...
-        this.id = count.incrementAndGet();
+        this.id = NOTECOUNT.incrementAndGet();
         this.createdTime = System.currentTimeMillis();
     }
 

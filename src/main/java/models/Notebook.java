@@ -11,13 +11,13 @@ import Utilities.SerialUtility;
  */
 public class Notebook {
 
-    private static final AtomicInteger COUNT = new AtomicInteger(0);
+    private static final AtomicInteger BOOKCOUNT = new AtomicInteger(0);
     public int id = -1;
     public String title;
     public ArrayList<Note> notes = new ArrayList<>();
 
     public Notebook() {
-        this.id = COUNT.incrementAndGet();
+        this.id = BOOKCOUNT.incrementAndGet();
     }
 
     public Notebook getNotebook(int id) {
@@ -64,8 +64,6 @@ public class Notebook {
     public Notebook getFilteredNotes(String[] tags) {
         // cloning the object so the original is unchanged
         Notebook copy = (Notebook) SerialUtility.cloneObject(this);
-        // setting an id so it doesn't override and conflict with current getNotebookById method
-        copy.id = -1;
         copy.notes.clear();
         
         // creating copy to avoid concurrent modification error
