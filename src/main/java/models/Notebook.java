@@ -61,7 +61,7 @@ public class Notebook {
         return null;
     }
 
-    public Notebook getFilteredNotes(String[] tags) {
+    public Notebook getFilteredNotes(ArrayList<String> tags) {
         // cloning the object so the original is unchanged
         Notebook copy = (Notebook) SerialUtility.cloneObject(this);
         copy.notes.clear();

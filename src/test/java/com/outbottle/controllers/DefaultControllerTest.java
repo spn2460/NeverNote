@@ -1,16 +1,15 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package com.outbottle.controllers;
 
+import java.util.ArrayList;
 import models.Note;
 import models.Notebook;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
+import org.junit.Before;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.ui.ModelMap;
 
@@ -19,31 +18,25 @@ import org.springframework.ui.ModelMap;
  * @author SPN
  */
 public class DefaultControllerTest {
-    
+
+    public Notebook book;
+    public DefaultController controller;
+
     public DefaultControllerTest() {
     }
-    
+
     @BeforeClass
     public static void setUpClass() {
     }
-    
+
     @AfterClass
     public static void tearDownClass() {
     }
 
-    /**
-     * Test of index method, of class DefaultController.
-     */
-    @Test
-    public void testIndex() {
-        System.out.println("index");
-        ModelMap map = null;
-        DefaultController instance = new DefaultController();
-        String expResult = "";
-        String result = instance.index(map);
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+    @Before
+    public void setUp() {
+        book = new Notebook();
+        controller = new DefaultController();
     }
 
     /**
@@ -52,13 +45,10 @@ public class DefaultControllerTest {
     @Test
     public void testCreateNotebook() {
         System.out.println("createNotebook");
-        Notebook notebook = null;
-        DefaultController instance = new DefaultController();
-        ResponseEntity<Notebook> expResult = null;
-        ResponseEntity<Notebook> result = instance.createNotebook(notebook);
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        assertEquals(controller.notebooks.size(), 0);
+        controller.notebooks.put(book.id, book);
+        assertEquals(controller.notebooks.size(), 1);
+
     }
 
     /**
@@ -67,13 +57,17 @@ public class DefaultControllerTest {
     @Test
     public void testGetNotebookById() {
         System.out.println("getNotebookById");
-        String id = "";
-        DefaultController instance = new DefaultController();
-        ResponseEntity<Notebook> expResult = null;
-        ResponseEntity<Notebook> result = instance.getNotebookById(id);
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+
+        // bad request
+        ResponseEntity entity = controller.getNotebookById(String.valueOf(book.id));
+        HttpStatus statusCode = entity.getStatusCode();
+        assertEquals(statusCode.toString(), "204");
+
+        // good request
+        controller.notebooks.put(book.id, book);
+        entity = controller.getNotebookById(String.valueOf(book.id));
+        statusCode = entity.getStatusCode();
+        assertEquals(statusCode.toString(), "200");
     }
 
     /**
@@ -82,14 +76,11 @@ public class DefaultControllerTest {
     @Test
     public void testDeleteNotebook() {
         System.out.println("deleteNotebook");
-        String id = "";
-        ModelMap map = null;
-        DefaultController instance = new DefaultController();
-        String expResult = "";
-        String result = instance.deleteNotebook(id, map);
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        controller.notebooks.put(book.id, book);
+        assertEquals(controller.notebooks.size(), 1);
+
+        controller.deleteNotebook(String.valueOf(book.id), new ModelMap());
+        assertEquals(controller.notebooks.size(), 0);
     }
 
     /**
@@ -98,14 +89,17 @@ public class DefaultControllerTest {
     @Test
     public void testCreateNote() {
         System.out.println("createNote");
-        String id = "";
-        Note note = null;
-        DefaultController instance = new DefaultController();
-        ResponseEntity<Note> expResult = null;
-        ResponseEntity<Note> result = instance.createNote(id, note);
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        Note note = new Note();
+        ResponseEntity entity = controller.createNote(String.valueOf(note.id), note);
+        HttpStatus statusCode = entity.getStatusCode();
+        assertEquals(statusCode.toString(), "204");
+
+        controller.notebooks.put(book.id, book);
+        assertEquals(book.getNotes().size(), 0);
+        entity = controller.createNote(String.valueOf(book.id), note);
+        statusCode = entity.getStatusCode();
+        assertEquals(statusCode.toString(), "200");
+        assertEquals(book.getNotes().size(), 1);
     }
 
     /**
@@ -114,64 +108,65 @@ public class DefaultControllerTest {
     @Test
     public void testGetNoteById() {
         System.out.println("getNoteById");
-        String bookid = "";
-        String noteid = "";
-        DefaultController instance = new DefaultController();
-        ResponseEntity<Note> expResult = null;
-        ResponseEntity<Note> result = instance.getNoteById(bookid, noteid);
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-
-    /**
-     * Test of updateNote method, of class DefaultController.
-     */
-    @Test
-    public void testUpdateNote() {
-        System.out.println("updateNote");
-        String bookId = "";
-        String noteId = "";
-        Note note = null;
-        DefaultController instance = new DefaultController();
-        ResponseEntity<Note> expResult = null;
-        ResponseEntity<Note> result = instance.updateNote(bookId, noteId, note);
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        Note note = new Note();
+        ResponseEntity entity = controller.getNoteById(String.valueOf(book.id), String.valueOf(note.id));
+        HttpStatus statusCode = entity.getStatusCode();
+        // not notebook yet
+        assertEquals(statusCode.toString(), "204");
+        
+        controller.notebooks.put(book.id, book);
+        entity = controller.getNoteById(String.valueOf(book.id), String.valueOf(note.id));
+        statusCode = entity.getStatusCode();
+        // note not added to book yet
+        assertEquals(statusCode.toString(), "204");
+        
+        book.addNote(note);
+        entity = controller.getNoteById(String.valueOf(book.id), String.valueOf(note.id));
+        statusCode = entity.getStatusCode();
+        // note added to book
+        assertEquals(statusCode.toString(), "200");
     }
 
     /**
      * Test of getNotesByTag method, of class DefaultController.
+     * this method tests the response is OK
+     * test for get tags is in notebook class
      */
     @Test
     public void testGetNotesByTag() {
         System.out.println("getNotesByTag");
-        String id = "";
-        String[] tags = null;
-        DefaultController instance = new DefaultController();
-        ResponseEntity<Notebook> expResult = null;
-        ResponseEntity<Notebook> result = instance.getNotesByTag(id, tags);
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
+        ArrayList<String> tags = new ArrayList<>();
+        tags.add("nugg");
+        tags.add("nuggy");
+        Note note = new Note();
+        book.addNote(note);
+        controller.notebooks.put(book.id, book);
+        
+        ResponseEntity entity = controller.getNotesByTag(String.valueOf(book.id), tags);
+        HttpStatus statusCode = entity.getStatusCode();
+        // not notebook yet
+        assertEquals(statusCode.toString(), "200");
 
+    }
     /**
      * Test of deleteNote method, of class DefaultController.
      */
     @Test
     public void testDeleteNote() {
         System.out.println("deleteNote");
-        String bookId = "";
-        String noteId = "";
-        ModelMap map = null;
-        DefaultController instance = new DefaultController();
-        String expResult = "";
-        String result = instance.deleteNote(bookId, noteId, map);
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        Note note = new Note();
+        String response = controller.getResponseMsgForDeleteNote(String.valueOf(book.id), String.valueOf(note.id));
+        assertEquals("Notebook " + book.id + " does not exist", response);
+        
+        controller.notebooks.put(book.id, book);
+        response = controller.getResponseMsgForDeleteNote(String.valueOf(book.id), String.valueOf(note.id));
+        assertEquals("Note " + note.id + " does not exist", response);
+        
+        book.addNote(note);
+        response = controller.getResponseMsgForDeleteNote(String.valueOf(book.id), String.valueOf(note.id));
+        assertEquals("Note " + note.id + " deleted", response);
+
+        
     }
-    
+
 }

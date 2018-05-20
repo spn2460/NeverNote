@@ -1,6 +1,8 @@
-
 package models;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -13,7 +15,7 @@ public class Note {
     public int id = -1;
     public String title;
     public String body;
-    public String[] tags;
+    public ArrayList<String> tags = new ArrayList<>();
     public long createdTime;
     long lastUpdated;
 
@@ -31,7 +33,25 @@ public class Note {
         return body;
     }
 
-    public String[] getTags() {
+    public void addTags(ArrayList<String> tags) {
+
+        this.tags.addAll(tags);
+    }
+
+    public void removeTags(ArrayList<String> tags) {
+
+        for (String tag : tags) {
+            Iterator itr = this.tags.iterator();
+            while (itr.hasNext()) {
+                if (itr.next().equals(tag)) {
+                    itr.remove();
+                }
+            }
+        }
+        System.out.println("Size of this.tags after: " + this.tags.size());
+    }
+
+    public ArrayList<String> getTags() {
         return tags;
     }
 
@@ -42,7 +62,7 @@ public class Note {
     public long getLastUpdated() {
         return lastUpdated;
     }
-    
+
     public void updateBody(String newBody) {
         body = newBody;
         lastUpdated = System.currentTimeMillis();

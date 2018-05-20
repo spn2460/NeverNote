@@ -1,5 +1,7 @@
 package com.outbottle.controllers;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import models.Note;
@@ -68,15 +70,19 @@ public class DefaultController {
      */
     @RequestMapping(value = "/notebooks/delete/{id}", method = RequestMethod.GET)
     public String deleteNotebook(@PathVariable(value = "id") String id, ModelMap map) {
-        // consider try catch to avoid NPE ??
+
+        String response = getResponseMsgForDeleteNotebook(id);
+        map.put("msg", response);
+        return "index";
+    }
+
+    String getResponseMsgForDeleteNotebook(String id) {
         notebook = notebooks.remove(Integer.valueOf(id));
         if (notebook == null) {
-            map.put("msg", "Notebook " + id + " does not exist");
-        } else {
-            notebook = null;
-            map.put("msg", "Notebook " + id + " Deleted");
+            return "Notebook " + id + " does not exist.";
         }
-        return "index";
+        notebook = null;
+        return "Notebook " + id + " deleted.";
     }
 
     /**
@@ -109,10 +115,13 @@ public class DefaultController {
             @PathVariable(value = "bookid") String bookid,
             @PathVariable(value = "noteid") String noteid) {
         notebook = notebooks.get(Integer.valueOf(bookid));
+        if (notebook == null) {
+            return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
+        }
         note = notebook.getNote(Integer.valueOf(noteid));
         //TODO: show message instead of empty field if notebook id is null
         if (note == null) {
-            return new ResponseEntity<>(note, HttpStatus.NO_CONTENT);
+            return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
         }
         return new ResponseEntity<>(note, HttpStatus.OK);
     }
@@ -137,6 +146,45 @@ public class DefaultController {
         return new ResponseEntity<>(note, HttpStatus.OK);
     }
 
+    /**
+     * POST tags array as JSON
+     *
+     * @param bookId notebook id
+     * @param noteId note id
+     * @param newNote the note to update
+     * @return Updated note object
+     */
+    @RequestMapping(value = "/notes/addTags/{bookid}/{noteid}", method = RequestMethod.POST)
+    public ResponseEntity<Note> addTags(
+            @PathVariable(value = "bookid") String bookId,
+            @PathVariable(value = "noteid") String noteId,
+            @RequestBody Note newNote) {
+
+        notebook = notebooks.get(Integer.valueOf(bookId));
+        note = notebook.getNote(Integer.valueOf(bookId));
+        note.addTags(newNote.tags);
+        return new ResponseEntity<>(note, HttpStatus.OK);
+    }
+
+    /**
+     *
+     * @param bookId notebook id
+     * @param noteId note id
+     * @param newNote the response note from JSON POST
+     * @return The updated note
+     */
+    @RequestMapping(value = "/notes/deleteTags/{bookid}/{noteid}", method = RequestMethod.POST)
+    public ResponseEntity<Note> deleteTags(
+            @PathVariable(value = "bookid") String bookId,
+            @PathVariable(value = "noteid") String noteId,
+            @RequestBody Note newNote) {
+
+        notebook = notebooks.get(Integer.valueOf(bookId));
+        note = notebook.getNote(Integer.valueOf(bookId));
+        note.removeTags(newNote.tags);
+        return new ResponseEntity<>(note, HttpStatus.OK);
+    }
+
 //    /**
 //     * get notes by tag
 //     * @param bookId the id of the notebook that contains the notes
@@ -152,18 +200,18 @@ public class DefaultController {
 //        Notebook filteredBook = notebook.getFilteredNotes(tags);
 //        return new ResponseEntity<>(filteredBook, HttpStatus.OK);
 //    }
-
     /**
-     * curl - "<http..>/NeverNote/notes/filter?id=1&tags=foo,bar"
-     * browser - remove quotes
+     * curl - "<http..>/NeverNote/notes/filter?id=1&tags=foo,bar" browser -
+     * remove quotes
+     *
      * @param id the book id
-     * @param tags array of tags
+     * @param tags array list of tags
      * @return filtered list of notes
      */
     @RequestMapping(value = "notes/filter", method = RequestMethod.GET)
     public ResponseEntity<Notebook> getNotesByTag(
             @RequestParam(value = "id", required = true) String id,
-            @RequestParam(value = "tags", required = true) String[] tags) {
+            @RequestParam(value = "tags", required = true) ArrayList<String> tags) {
         notebook = notebooks.get(Integer.valueOf(id));
         Notebook filteredBook = notebook.getFilteredNotes(tags);
         return new ResponseEntity<>(filteredBook, HttpStatus.OK);
@@ -182,14 +230,23 @@ public class DefaultController {
             @PathVariable(value = "bookid") String bookId,
             @PathVariable(value = "noteid") String noteId,
             ModelMap map) {
-        notebook = notebooks.get(Integer.valueOf(bookId));
-        note = notebook.getNote(Integer.valueOf(noteId));
-        notebook.deleteNote(note);
-        if (note == null) {
-            map.put("msg", "Note " + noteId + " does note exist");
-        } else {
-            map.put("msg", "Note " + noteId + " Deleted");
-        }
+
+        String response = getResponseMsgForDeleteNote(bookId, noteId);
+        map.put("msg", response);
         return "index";
+    }
+
+    public String getResponseMsgForDeleteNote(String bookId, String noteId) {
+        notebook = notebooks.get(Integer.valueOf(bookId));
+        if (notebook == null) {
+            return "Notebook " + bookId + " does not exist";
+        }
+        note = notebook.getNote(Integer.valueOf(noteId));
+        if (note == null ) {
+            return "Note " + noteId + " does not exist";
+        }
+        notebook.deleteNote(note);
+        note = null;
+        return "Note " + noteId + " deleted";
     }
 }
