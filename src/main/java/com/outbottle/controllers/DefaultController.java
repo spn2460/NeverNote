@@ -69,14 +69,19 @@ public class DefaultController {
     @RequestMapping(value = "/notebooks/delete/{id}", method = RequestMethod.GET)
     public String deleteNotebook(@PathVariable(value = "id") String id, ModelMap map) {
         // consider try catch to avoid NPE ??
+        String responseMsg = getResponseMsgForDeleteNotebook(id);
+        map.put("msg", responseMsg);
+        return "index";
+    }
+    
+    String getResponseMsgForDeleteNotebook(String id) {
         notebook = notebooks.remove(Integer.valueOf(id));
         if (notebook == null) {
-            map.put("msg", "Notebook " + id + " does not exist");
+            return "Notebook " + id + " does not exist";
         } else {
             notebook = null;
-            map.put("msg", "Notebook " + id + " Deleted");
+            return "Notebook " + id + " Deleted";
         }
-        return "index";
     }
 
     /**
