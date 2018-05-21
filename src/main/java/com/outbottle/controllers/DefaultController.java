@@ -1,7 +1,6 @@
 package com.outbottle.controllers;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import models.Note;
@@ -119,7 +118,6 @@ public class DefaultController {
             return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
         }
         note = notebook.getNote(Integer.valueOf(noteid));
-        //TODO: show message instead of empty field if notebook id is null
         if (note == null) {
             return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
         }
@@ -185,24 +183,9 @@ public class DefaultController {
         return new ResponseEntity<>(note, HttpStatus.OK);
     }
 
-//    /**
-//     * get notes by tag
-//     * @param bookId the id of the notebook that contains the notes
-//     * @param note a JSON request with an array of tags to search on
-//     * @return a filtered notebook
-//     */
-//    @RequestMapping(value = "notes/filter/{id}", method = RequestMethod.POST)
-//    public ResponseEntity<Notebook> getNotesByTag(
-//            @PathVariable(value = "id") String bookId,
-//            @RequestBody Note note) {
-//        String[] tags = note.tags;
-//        notebook = notebooks.get(Integer.valueOf(bookId));
-//        Notebook filteredBook = notebook.getFilteredNotes(tags);
-//        return new ResponseEntity<>(filteredBook, HttpStatus.OK);
-//    }
     /**
-     * curl - "<http..>/NeverNote/notes/filter?id=1&tags=foo,bar" browser -
-     * remove quotes
+     * curl - "<http..>/NeverNote/notes/filter?id=1&tags=foo,bar" 
+     * browser - remove quotes
      *
      * @param id the book id
      * @param tags array list of tags

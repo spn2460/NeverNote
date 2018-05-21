@@ -22,17 +22,6 @@ public class DefaultControllerTest {
     public Notebook book;
     public DefaultController controller;
 
-    public DefaultControllerTest() {
-    }
-
-    @BeforeClass
-    public static void setUpClass() {
-    }
-
-    @AfterClass
-    public static void tearDownClass() {
-    }
-
     @Before
     public void setUp() {
         book = new Notebook();
@@ -40,25 +29,12 @@ public class DefaultControllerTest {
     }
 
     /**
-     * Test of createNotebook method, of class DefaultController.
-     */
-    @Test
-    public void testCreateNotebook() {
-        System.out.println("createNotebook");
-        assertEquals(controller.notebooks.size(), 0);
-        controller.notebooks.put(book.id, book);
-        assertEquals(controller.notebooks.size(), 1);
-
-    }
-
-    /**
      * Test of getNotebookById method, of class DefaultController.
      */
     @Test
-    public void testGetNotebookById() {
-        System.out.println("getNotebookById");
+    public void testGetNotebookById_fail() {
+        System.out.println("getNotebookById_fail");
 
-        // bad request
         ResponseEntity entity = controller.getNotebookById(String.valueOf(book.id));
         HttpStatus statusCode = entity.getStatusCode();
         assertEquals(statusCode.toString(), "204");
@@ -67,6 +43,19 @@ public class DefaultControllerTest {
         controller.notebooks.put(book.id, book);
         entity = controller.getNotebookById(String.valueOf(book.id));
         statusCode = entity.getStatusCode();
+        assertEquals(statusCode.toString(), "200");
+    }
+    
+        /**
+     * Test of getNotebookById method, of class DefaultController.
+     */
+    @Test
+    public void testGetNotebookById_success() {
+        System.out.println("getNotebookById_Success");
+
+        controller.notebooks.put(book.id, book);
+        ResponseEntity entity = controller.getNotebookById(String.valueOf(book.id));
+        HttpStatus statusCode = entity.getStatusCode();
         assertEquals(statusCode.toString(), "200");
     }
 
@@ -163,10 +152,14 @@ public class DefaultControllerTest {
         assertEquals("Note " + note.id + " does not exist", response);
         
         book.addNote(note);
+        int numNotes = book.getNotes().size();
+        assertEquals(numNotes, 1);
+        
         response = controller.getResponseMsgForDeleteNote(String.valueOf(book.id), String.valueOf(note.id));
         assertEquals("Note " + note.id + " deleted", response);
-
-        
+        controller.deleteNote(String.valueOf(book.id), String.valueOf(note.id), new ModelMap());
+        numNotes = book.getNotes().size();
+        assertEquals(numNotes, 0);
     }
 
 }
